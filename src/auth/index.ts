@@ -55,6 +55,7 @@ export const useAuth = () => {
   };
 
   const useLogout = async () => {
+    state.isAuthenticated = false;
     return await auth0Client.value!.logout();
   };
 
@@ -85,6 +86,7 @@ export const useAuth = () => {
     if (query.includes("code=") && query.includes("state=")) {
       await handleRedirectCallback();
       state.user = await getUser();
+      state.isAuthenticated = true;
       await getIdTokenClaims();
       await router.push("/");
     }

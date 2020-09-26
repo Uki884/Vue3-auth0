@@ -1,8 +1,8 @@
 <template>
   <div class="hello">
     user: {{ user }} {{ idToken }}
-    <h3 @click="useLoginWithRedirect()">ログイン</h3>
-    <div @click="useLogout()">ログアウト</div>
+    <h3 v-if="!isAuthenticated" @click="useLoginWithRedirect()">ログイン</h3>
+    <div v-if="isAuthenticated" @click="useLogout()">ログアウト</div>
   </div>
 </template>
 
@@ -16,11 +16,18 @@ export default defineComponent({
     msg: String
   },
   setup(props, context) {
-    const { useLoginWithRedirect, user, idToken, useLogout } = authStore();
+    const {
+      useLoginWithRedirect,
+      user,
+      idToken,
+      useLogout,
+      isAuthenticated
+    } = authStore();
     return {
       useLoginWithRedirect,
       useLogout,
       user,
+      isAuthenticated,
       idToken
     };
   }
