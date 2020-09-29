@@ -11,31 +11,24 @@ import {
   onMounted,
   watchEffect,
   ref,
-  reactive
+  reactive,
+  onBeforeMount
 } from "vue";
-// import UserProvider from "@/Provider/UserProvider.vue";
 import defaultLayout from "@/layouts/default.vue";
-import { useUser } from "@/store/UserStore.ts";
+import { useUserStore } from "@/store/UserStore.ts";
+
 export default defineComponent({
   components: {
-    // UserProvider,
     defaultLayout
   },
   setup(props, context) {
-    const { useInitializeUser, user } = useUser();
-
+    const { state, useInitializeUser, user } = useUserStore();
     const isLoading = ref(false);
-    const state = reactive({
-      user: null
-    });
 
-    onMounted(async () => {
+    onBeforeMount(async () => {
       isLoading.value = true;
       const result = await useInitializeUser();
-      console.log(result);
-      if (result) {
-        isLoading.value = false;
-      }
+      isLoading.value = false;
     });
 
     const layout = computed(() => {
@@ -45,6 +38,7 @@ export default defineComponent({
     return {
       layout,
       user,
+      state,
       isLoading
     };
   }

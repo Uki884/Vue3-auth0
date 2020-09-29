@@ -1,15 +1,4 @@
-import {
-  reactive,
-  onMounted,
-  toRefs,
-  watch,
-  ref,
-  onBeforeMount,
-  InjectionKey,
-  readonly,
-  computed,
-  inject
-} from "vue";
+import { reactive, toRefs, InjectionKey, inject } from "vue";
 
 import { useAuth } from "@/auth";
 
@@ -35,7 +24,6 @@ interface UseUser {
 }
 
 export const useUser = (): UseUser => {
-  inject(UserKey) as UserStore;
   const { useLoginWithRedirect, useLogout, useInitializeUser } = useAuth();
 
   const state = reactive<State>({
@@ -60,15 +48,12 @@ export const useUser = (): UseUser => {
 
   const initializeUser = async () => {
     if (state.user) return;
-    const { user, token, isLoggedIn } = (await useInitializeUser()) as {
-      user: Auth0User;
-      token: string;
-      isLoggedIn: boolean;
-    };
-    state.user = user;
-    state.isAuthenticated = isLoggedIn;
-    state.accessToken = token;
-    setUser({ user, token, isLoggedIn });
+    const result = await useInitializeUser();
+    console.log(result);
+    if (!result) return;
+    state.user = result.user;
+    state.isAuthenticated = result.isLoggedIn;
+    state.accessToken = result.token as string;
     return true;
   };
 
@@ -76,15 +61,21 @@ export const useUser = (): UseUser => {
     await useLogout();
   };
 
-  const user = computed(() => state.user);
-  console.log(state);
   return {
     useLogin: login,
     useLogout: logout,
     useInitializeUser: initializeUser,
-    ...toRefs(state),
-    user
+    state,
+    ...toRefs(state)
   } as any;
 };
 
 export type UserStore = ReturnType<typeof useUser>;
+
+export const useUserStore = () => {
+  const store = inject(UserKey) as UserStore;
+  if (!store) {
+    throw new Error("useCount() is called without provider.");
+  }
+  return store;
+};

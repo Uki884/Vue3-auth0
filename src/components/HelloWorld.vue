@@ -1,14 +1,15 @@
 <template>
   <div class="hello">
+    {{ state }}
     <h3 @click="useLogin()">ログイン</h3>
     <h3 @click="useLogout()">ログアウト</h3>
+    <router-link to="/about">about</router-link>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, onMounted } from "vue";
-// import { useAuth, AuthKey } from "@/auth/index.ts";
-import { useUser, UserKey, UserStore } from "@/store/UserStore.ts";
+import { defineComponent, inject, onMounted, watch } from "vue";
+import { useUserStore } from "@/store/UserStore.ts";
 
 export default defineComponent({
   name: "HelloWorld",
@@ -16,14 +17,18 @@ export default defineComponent({
     msg: String
   },
   setup(props, context) {
-    const { useLogin, useLogout, user } = useUser();
-
-    console.log(user.value);
-
+    const {
+      useLogin,
+      useLogout,
+      state,
+      useInitializeUser,
+      user
+    } = useUserStore();
     return {
       useLogin,
       useLogout,
-      user
+      user,
+      state
     };
   }
 });

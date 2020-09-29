@@ -20,6 +20,7 @@ interface State {
   idToken: string;
   popupOpen: boolean;
   error: string | null;
+  auth0Client: Auth0Client | null;
 }
 
 // export const AuthKey: InjectionKey<Auth0> = Symbol("Auth0");
@@ -27,7 +28,6 @@ const DEFAULT_REDIRECT_CALLBACK = () =>
   window.history.replaceState({}, document.title, window.location.pathname);
 
 export const useAuth = () => {
-  const router = useRouter();
   const domain = process.env.DOMAIN || "dev-rsiqsbgw.auth0.com";
   const clientId = process.env.CLIENT_ID || "kbmDBE05qrFsZG0PesVkCVd166m8khd0";
   const redirectUri = window.location.origin + "/callback";
@@ -38,14 +38,13 @@ export const useAuth = () => {
     user: null,
     idToken: "",
     popupOpen: false,
-    error: null
+    error: null,
+    auth0Client: null
   });
 
-  const auth0Client = ref();
-
   const createClient = async () => {
-    if (auth0Client.value) return;
-    auth0Client.value = await createAuth0Client({
+    if (state.auth0Client) return;
+    state.auth0Client = await createAuth0Client({
       domain,
       client_id: clientId,
       audience: "",
@@ -54,47 +53,48 @@ export const useAuth = () => {
   };
 
   const loginWithRedirect = async () => {
-    return await auth0Client.value!.loginWithRedirect();
+    return await state.auth0Client!.loginWithRedirect();
   };
 
   const logout = async () => {
     state.isAuthenticated = false;
-    return await auth0Client.value!.logout();
+    return state.auth0Client!.logout();
   };
 
   const getIdTokenClaims = async () => {
     if (state.idToken) return;
-    const token = await auth0Client.value!.getIdTokenClaims();
+    const token = await state.auth0Client!.getIdTokenClaims();
     state.idToken = token.__raw;
     document.cookie = `token=${token.__raw}`;
     return token.__raw;
   };
 
   const getTokenSilently = async () => {
-    const token = await auth0Client.value!.getTokenSilently();
+    const token = await state.auth0Client!.getTokenSilently();
     console.log(token);
     return token;
   };
   const handleRedirectCallback = async () => {
-    return await auth0Client.value!.handleRedirectCallback();
+    return await state.auth0Client!.handleRedirectCallback();
   };
 
   const getUser = async () => {
-    const result = await auth0Client.value!.getUser();
+    const result = await state.auth0Client!.getUser();
     return result;
   };
 
   const isAuthenticated = async () => {
-    return await auth0Client.value!.isAuthenticated();
+    return await state.auth0Client!.isAuthenticated();
   };
 
   const initializeUser = async () => {
-    console.log("発火");
-    await createClient();
+    if (!state.auth0Client) {
+      await createClient();
+    }
     const isAuth = await isAuthenticated();
     if (!isAuth) return;
     const user: Auth0User = await getUser();
-    const token: string = await getIdTokenClaims();
+    const token: string | undefined = await getIdTokenClaims();
     const isLoggedIn: boolean = await isAuthenticated();
     return {
       user,
@@ -119,5 +119,3 @@ export const useAuth = () => {
     useInitializeUser: initializeUser
   };
 };
-
-// export type Auth0 = ReturnType<typeof useAuth>;
