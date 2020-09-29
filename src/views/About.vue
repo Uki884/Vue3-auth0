@@ -1,5 +1,24 @@
 <template>
   <div class="about">
-    <h1>This is an about page</h1>
+    {{ user }}
   </div>
 </template>
+
+<script lang="ts">
+import { defineComponent, inject, onMounted, watch } from "vue";
+import { useUserStore } from "@/store/UserStore.ts";
+
+export default defineComponent({
+  props: {
+    msg: String
+  },
+  setup(props, context) {
+    const { useLogin, useLogout, user } = useUserStore();
+    return {
+      useLogin,
+      useLogout,
+      user
+    };
+  }
+});
+</script>
