@@ -28,8 +28,8 @@ const DEFAULT_REDIRECT_CALLBACK = () =>
   window.history.replaceState({}, document.title, window.location.pathname);
 
 export const useAuth = () => {
-  const domain = process.env.DOMAIN || "dev-rsiqsbgw.auth0.com";
-  const clientId = process.env.CLIENT_ID || "kbmDBE05qrFsZG0PesVkCVd166m8khd0";
+  const DOMAIN = process.env.VUE_APP_AUTH0_DOMAIN;
+  const CLIENT_ID = process.env.VUE_APP_AUTH0_CLIENT_ID;
   const redirectUri = window.location.origin + "/callback";
 
   const state = reactive<State>({
@@ -45,8 +45,8 @@ export const useAuth = () => {
   const createClient = async () => {
     if (state.auth0Client) return;
     state.auth0Client = await createAuth0Client({
-      domain,
-      client_id: clientId,
+      domain: DOMAIN,
+      client_id: CLIENT_ID,
       audience: "",
       redirect_uri: redirectUri
     });
@@ -74,6 +74,7 @@ export const useAuth = () => {
     console.log(token);
     return token;
   };
+
   const handleRedirectCallback = async () => {
     return await state.auth0Client!.handleRedirectCallback();
   };
