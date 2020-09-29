@@ -1,6 +1,6 @@
 <template>
   <div class="about">
-    {{ state }}
+    {{ user }}
   </div>
 </template>
 
@@ -13,12 +13,11 @@ export default defineComponent({
     msg: String
   },
   setup(props, context) {
-    const { useLogin, useLogout, user, state } = useUserStore();
+    const { useLogin, useLogout, user } = useUserStore();
     return {
       useLogin,
       useLogout,
-      user,
-      state
+      user
     };
   }
 });

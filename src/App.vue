@@ -22,7 +22,7 @@ export default defineComponent({
     defaultLayout
   },
   setup(props, context) {
-    const { state, useInitializeUser, user } = useUserStore();
+    const { useInitializeUser, user } = useUserStore();
     const isLoading = ref(false);
 
     onBeforeMount(async () => {
@@ -38,7 +38,6 @@ export default defineComponent({
     return {
       layout,
       user,
-      state,
       isLoading
     };
   }

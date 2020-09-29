@@ -18,7 +18,6 @@ interface UseUser {
   useLogout: Function;
   useInitializeUser: Function;
   user: any;
-  state: any;
   isAuthenticated: boolean;
   getUser: any;
 }
@@ -65,7 +64,6 @@ export const useUser = (): UseUser => {
     useLogin: login,
     useLogout: logout,
     useInitializeUser: initializeUser,
-    state,
     ...toRefs(state)
   } as any;
 };

@@ -1,8 +1,8 @@
 <template>
   <div class="hello">
-    {{ state }}
-    <h3 @click="useLogin()">ログイン</h3>
-    <h3 @click="useLogout()">ログアウト</h3>
+    {{ user }}
+    <h3 v-if="!isAuthenticated" @click="useLogin()">ログイン</h3>
+    <h3 v-if="isAuthenticated" @click="useLogout()">ログアウト</h3>
     <router-link to="/about">about</router-link>
   </div>
 </template>
@@ -20,15 +20,15 @@ export default defineComponent({
     const {
       useLogin,
       useLogout,
-      state,
       useInitializeUser,
-      user
+      user,
+      isAuthenticated
     } = useUserStore();
     return {
       useLogin,
       useLogout,
       user,
-      state
+      isAuthenticated
     };
   }
 });
