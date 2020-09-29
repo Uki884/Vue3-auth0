@@ -6,7 +6,7 @@
 
 <script lang="ts">
 import { defineComponent, inject } from "vue";
-import authStore from "@/store/authStore.ts";
+// import { useAuth, AuthKey } from "@/auth/index.ts";
 import HelloWorld from "@/components/HelloWorld.vue";
 export default defineComponent({
   name: "Home",
@@ -14,7 +14,7 @@ export default defineComponent({
     HelloWorld
   },
   setup(props, context) {
-    const useAuth = authStore();
+    // useAuth()
     return {};
   }
 });

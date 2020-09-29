@@ -8,7 +8,8 @@ import {
   onBeforeMount,
   InjectionKey,
   readonly,
-  computed
+  computed,
+  inject
 } from "vue";
 import { useRouter } from "vue-router";
 
@@ -21,6 +22,7 @@ interface State {
   error: string | null;
 }
 
+// export const AuthKey: InjectionKey<Auth0> = Symbol("Auth0");
 const DEFAULT_REDIRECT_CALLBACK = () =>
   window.history.replaceState({}, document.title, window.location.pathname);
 
@@ -31,7 +33,7 @@ export const useAuth = () => {
   const redirectUri = window.location.origin + "/callback";
 
   const state = reactive<State>({
-    loading: true,
+    loading: false,
     isAuthenticated: false,
     user: null,
     idToken: "",
@@ -42,6 +44,7 @@ export const useAuth = () => {
   const auth0Client = ref();
 
   const createClient = async () => {
+    if (auth0Client.value) return;
     auth0Client.value = await createAuth0Client({
       domain,
       client_id: clientId,
@@ -50,11 +53,11 @@ export const useAuth = () => {
     });
   };
 
-  const useLoginWithRedirect = async () => {
+  const loginWithRedirect = async () => {
     return await auth0Client.value!.loginWithRedirect();
   };
 
-  const useLogout = async () => {
+  const logout = async () => {
     state.isAuthenticated = false;
     return await auth0Client.value!.logout();
   };
@@ -64,6 +67,7 @@ export const useAuth = () => {
     const token = await auth0Client.value!.getIdTokenClaims();
     state.idToken = token.__raw;
     document.cookie = `token=${token.__raw}`;
+    return token.__raw;
   };
 
   const getTokenSilently = async () => {
@@ -80,24 +84,40 @@ export const useAuth = () => {
     return result;
   };
 
+  const isAuthenticated = async () => {
+    return await auth0Client.value!.isAuthenticated();
+  };
+
+  const initializeUser = async () => {
+    console.log("発火");
+    await createClient();
+    const isAuth = await isAuthenticated();
+    if (!isAuth) return;
+    const user: Auth0User = await getUser();
+    const token: string = await getIdTokenClaims();
+    const isLoggedIn: boolean = await isAuthenticated();
+    return {
+      user,
+      token,
+      isLoggedIn
+    };
+  };
+
   onMounted(async () => {
     await createClient();
     const query = window.location.search;
-    if (query.includes("code=") && query.includes("state=")) {
+    if (query.includes("code=") && query.includes("state=") && !state.loading) {
       await handleRedirectCallback();
-      state.user = await getUser();
-      state.isAuthenticated = true;
-      await getIdTokenClaims();
-      await router.push("/");
+      window.location.href = "/";
     }
   });
 
   return {
-    useLoginWithRedirect,
-    useLogout,
-    ...toRefs(readonly(state))
+    useLoginWithRedirect: loginWithRedirect,
+    useLogout: logout,
+    useIsAuthenticated: isAuthenticated,
+    useInitializeUser: initializeUser
   };
 };
 
-export type AuthStore = ReturnType<typeof useAuth>;
-export const AuthKey: InjectionKey<AuthStore> = Symbol("AuthStore");
+// export type Auth0 = ReturnType<typeof useAuth>;

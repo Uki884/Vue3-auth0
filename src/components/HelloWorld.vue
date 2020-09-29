@@ -1,14 +1,14 @@
 <template>
   <div class="hello">
-    user: {{ user }} {{ idToken }}
-    <h3 v-if="!isAuthenticated" @click="useLoginWithRedirect()">ログイン</h3>
-    <div v-if="isAuthenticated" @click="useLogout()">ログアウト</div>
+    <h3 @click="useLogin()">ログイン</h3>
+    <h3 @click="useLogout()">ログアウト</h3>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import authStore from "@/store/authStore.ts";
+import { defineComponent, inject, onMounted } from "vue";
+// import { useAuth, AuthKey } from "@/auth/index.ts";
+import { useUser, UserKey, UserStore } from "@/store/UserStore.ts";
 
 export default defineComponent({
   name: "HelloWorld",
@@ -16,19 +16,14 @@ export default defineComponent({
     msg: String
   },
   setup(props, context) {
-    const {
-      useLoginWithRedirect,
-      user,
-      idToken,
-      useLogout,
-      isAuthenticated
-    } = authStore();
+    const { useLogin, useLogout, user } = useUser();
+
+    console.log(user.value);
+
     return {
-      useLoginWithRedirect,
+      useLogin,
       useLogout,
-      user,
-      isAuthenticated,
-      idToken
+      user
     };
   }
 });

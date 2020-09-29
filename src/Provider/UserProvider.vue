@@ -3,12 +3,13 @@
 </template>
 
 <script lang="ts">
-import { useAuth, AuthKey } from "@/auth/index.ts";
+// import { useAuth, AuthKey } from "@/auth/index.ts";
+import { useUser, UserKey } from "@/store/UserStore";
 import { defineComponent, SetupContext, provide } from "vue";
 
 export default defineComponent({
   setup(props, context: SetupContext) {
-    provide(AuthKey, useAuth());
+    provide(UserKey, useUser());
   }
 });
 </script>
