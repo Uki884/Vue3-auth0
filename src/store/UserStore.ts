@@ -1,4 +1,4 @@
-import { reactive, toRefs, InjectionKey, inject } from "vue";
+import { reactive, toRefs, InjectionKey, inject, readonly } from "vue";
 
 import { useAuth } from "@/auth";
 
@@ -18,8 +18,7 @@ interface UseUser {
   useLogout: Function;
   useInitializeUser: Function;
   user: any;
-  isAuthenticated: boolean;
-  getUser: any;
+  isAuthenticated: any;
 }
 
 export const useUser = (): UseUser => {
@@ -39,21 +38,21 @@ export const useUser = (): UseUser => {
   };
 
   const setUser = (payload: any) => {
-    console.log(payload);
     state.user = payload.user;
     state.isAuthenticated = payload.isLoggedIn;
     state.accessToken = payload.token;
   };
 
-  const initializeUser = async () => {
-    if (state.user) return;
-    const result = await useInitializeUser();
-    console.log(result);
-    if (!result) return;
-    state.user = result.user;
-    state.isAuthenticated = result.isLoggedIn;
-    state.accessToken = result.token as string;
-    return true;
+  const initializeUser = async (): Promise<void> => {
+    try {
+      if (!state.user) new Error("Please Login");
+      const result = await useInitializeUser();
+      if (!result) new Error("Please Login");
+      setUser(result);
+    } catch (e) {
+      console.log(e);
+      return e;
+    }
   };
 
   const logout = async () => {
@@ -64,8 +63,8 @@ export const useUser = (): UseUser => {
     useLogin: login,
     useLogout: logout,
     useInitializeUser: initializeUser,
-    ...toRefs(state)
-  } as any;
+    ...toRefs(readonly(state))
+  };
 };
 
 export type UserStore = ReturnType<typeof useUser>;
