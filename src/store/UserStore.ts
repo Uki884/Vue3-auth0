@@ -1,4 +1,12 @@
-import { reactive, toRefs, InjectionKey, inject, readonly } from "vue";
+import {
+  reactive,
+  toRefs,
+  InjectionKey,
+  inject,
+  readonly,
+  computed,
+  ComputedRef
+} from "vue";
 
 import { useAuth } from "@/auth";
 
@@ -17,8 +25,8 @@ interface UseUser {
   useLogin: Function;
   useLogout: Function;
   useInitializeUser: Function;
-  user: any;
-  isAuthenticated: any;
+  user: ComputedRef<User | null>;
+  isAuthenticated: ComputedRef<boolean>;
 }
 
 export const useUser = (): UseUser => {
@@ -32,6 +40,9 @@ export const useUser = (): UseUser => {
     popupOpen: false,
     error: null
   });
+
+  const user = computed(() => state.user);
+  const isAuthenticated = computed(() => state.isAuthenticated);
 
   const login = async () => {
     await useLoginWithRedirect();
@@ -63,7 +74,8 @@ export const useUser = (): UseUser => {
     useLogin: login,
     useLogout: logout,
     useInitializeUser: initializeUser,
-    ...toRefs(readonly(state))
+    user,
+    isAuthenticated
   };
 };
 
