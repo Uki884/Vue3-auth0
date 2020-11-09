@@ -1,12 +1,4 @@
-import {
-  reactive,
-  toRefs,
-  InjectionKey,
-  inject,
-  readonly,
-  computed,
-  ComputedRef
-} from "vue";
+import { reactive, InjectionKey, inject, computed, ComputedRef } from "vue";
 
 import { useAuth } from "@/auth";
 
@@ -48,7 +40,11 @@ export const useUser = (): UseUser => {
     await useLoginWithRedirect();
   };
 
-  const setUser = (payload: any) => {
+  const setUser = (payload: {
+    user: User;
+    isLoggedIn: boolean;
+    token: string;
+  }) => {
     state.user = payload.user;
     state.isAuthenticated = payload.isLoggedIn;
     state.accessToken = payload.token;

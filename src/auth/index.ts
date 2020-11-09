@@ -4,12 +4,11 @@ import createAuth0Client, {
   RedirectLoginResult
 } from "@auth0/auth0-spa-js";
 import { reactive, onMounted } from "vue";
-import { useRouter } from "vue-router";
 
 interface State {
   loading: boolean;
   isAuthenticated: boolean;
-  user: any;
+  user: User | null;
   idToken: string;
   popupOpen: boolean;
   error: string | null;
@@ -63,7 +62,7 @@ export const useAuth = (): UseAuth => {
 
   const logout = async (): Promise<void> => {
     state.isAuthenticated = false;
-    return state.auth0Client!.logout();
+    return state.auth0Client?.logout();
   };
 
   const getIdTokenClaims = async (): Promise<string> => {
@@ -79,12 +78,6 @@ export const useAuth = (): UseAuth => {
       console.log(e);
       return e;
     }
-  };
-
-  const getTokenSilently = async (): Promise<string | undefined> => {
-    if (!state.auth0Client) return;
-    const token = await state.auth0Client.getTokenSilently();
-    return token;
   };
 
   const handleRedirectCallback = async (): Promise<RedirectLoginResult> => {
@@ -107,7 +100,11 @@ export const useAuth = (): UseAuth => {
 
   const isAuthenticated = async (): Promise<boolean> => {
     if (!state.auth0Client) new Error("not created auth0 instance");
-    return await state.auth0Client!.isAuthenticated();
+    const result = await state.auth0Client?.isAuthenticated();
+    if (!result) {
+      return false;
+    }
+    return result;
   };
 
   const initializeUser = async <T>(): Promise<{
