@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, onMounted, watch } from "vue";
+import { defineComponent } from "vue";
 import { useUserStore } from "@/store/UserStore.ts";
 
 export default defineComponent({
@@ -17,13 +17,7 @@ export default defineComponent({
     msg: String
   },
   setup(props, context) {
-    const {
-      useLogin,
-      useLogout,
-      useInitializeUser,
-      user,
-      isAuthenticated
-    } = useUserStore();
+    const { useLogin, useLogout, user, isAuthenticated } = useUserStore();
     return {
       useLogin,
       useLogout,

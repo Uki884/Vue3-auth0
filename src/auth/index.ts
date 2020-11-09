@@ -39,7 +39,7 @@ export const useAuth = (): UseAuth => {
 
   const createClient = async (): Promise<void> => {
     try {
-      if (state.auth0Client) throw new Error("already created auth0 instance");
+      if (state.auth0Client) return;
       state.auth0Client = await createAuth0Client({
         domain: DOMAIN,
         client_id: CLIENT_ID,
